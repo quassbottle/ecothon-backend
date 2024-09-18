@@ -9,6 +9,7 @@ import { AlreadyAttendingEventException } from '@app/common/errors/events/event.
 import { EventCantModifyException } from '@app/common/errors/events/event.cant-modify.exception';
 import { NotAttendingEventException } from '@app/common/errors/events/event.not-attending.exception';
 import { TagsService } from '../tags/tags.service';
+import moment from 'moment';
 
 @Injectable()
 export class EventsService {
@@ -403,5 +404,158 @@ export class EventsService {
       where: { id },
       data: data as Omit<EventUpdate, 'tags'>,
     });
+  }
+
+  async analytics(params: { eventId: string }) {
+    const { eventId } = params;
+
+    await this.assertEventExistsById(eventId);
+
+    const total = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: true,
+          },
+        },
+      },
+    });
+
+    const totalParticipantsCount = total._count.participants;
+
+    const femaleParticipants = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                gender: 'female',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const femaleParticipantsCount = femaleParticipants._count.participants;
+
+    const maleParticipants = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                gender: 'male',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const maleParticipantsCount = maleParticipants._count.participants;
+
+    const unknownParticipantsCount =
+      totalParticipantsCount - maleParticipantsCount - femaleParticipantsCount;
+
+    const totalAdult = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                birthdate: {
+                  not: null,
+                  gte: moment().add(-18, 'y').toISOString(),
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalAdultCount = totalAdult._count.participants;
+
+    const totalSixteen = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                birthdate: {
+                  not: null,
+                  gte: moment().add(-16, 'y').toISOString(),
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalSixteenCount = totalSixteen._count.participants;
+
+    const totalTwelve = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                birthdate: {
+                  not: null,
+                  gte: moment().add(-12, 'y').toISOString(),
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalTwelveCount = totalTwelve._count.participants;
+
+    const totalSix = await this.prisma.events.findFirst({
+      where: { id: eventId },
+      select: {
+        _count: {
+          select: {
+            participants: {
+              where: {
+                birthdate: {
+                  not: null,
+                  gte: moment().add(-6, 'y').toISOString(),
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalSixCount = totalSix._count.participants;
+
+    return {
+      count: {
+        gender: {
+          total: totalParticipantsCount,
+          female: femaleParticipantsCount,
+          male: maleParticipantsCount,
+          unknown: unknownParticipantsCount,
+        },
+        age: {
+          adult: totalAdultCount,
+          sixteen: totalSixteenCount,
+          twelve: totalTwelveCount,
+          six: totalSixCount,
+        },
+      },
+    };
   }
 }

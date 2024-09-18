@@ -13,6 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  male
+  female
+  unknown
+
+  @@map("gender")
+}
+
 enum Role {
   user
   host
@@ -39,7 +47,9 @@ model Users {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  role Role @default(user)
+  role      Role      @default(user)
+  gender    Gender    @default(unknown)
+  birthdate DateTime?
 
   telegram       UserTelegram? @relation("TelegramUsers")
   comments       Comments[]
