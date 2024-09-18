@@ -20,7 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { EventUpdateDTO } from './dto/event-update.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard, HasTokenGuard } from '../auth/auth.guard';
 import { RequestWithJwt } from '../auth/auth.types';
 import { CommentsService } from '../comments/comments.service';
 import { CommentCreateDTO } from '../comments/dto/comment-create.dto';
@@ -109,8 +109,10 @@ export class EventsController {
     isArray: true,
     required: false,
   })
+  @UseGuards(HasTokenGuard)
   @Get()
   async findAll(
+    @Req() req: RequestWithJwt,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     @Query('offset', new ParseIntPipe({ optional: true })) offset?: number,
     @Query('order', new ParseEnumPipe(SortOrder, { optional: true }))
@@ -118,7 +120,13 @@ export class EventsController {
     @Query('tags') tags?: string[],
   ) {
     return mapToArrayResponse(
-      await this.eventsService.findAll({ limit, offset, dateOrder, tags }),
+      await this.eventsService.findAll({
+        limit,
+        offset,
+        dateOrder,
+        tags,
+        userId: req.jwtPayload?.sub ?? undefined,
+      }),
       offset,
     );
   }

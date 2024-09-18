@@ -142,53 +142,10 @@ export class EventsService {
     };
   }
 
-  async findAllNew(params: {
-    where: Prisma.EventsWhereInput;
-    take?: number;
-    skip?: number;
-  }): Promise<EventModel[]> {
-    const { where, take, skip } = params;
-
-    const events = await this.prisma.events.findMany({
-      where,
-      take,
-      skip,
-      orderBy: { startDate: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        bannerUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        startDate: true,
-        authorId: true,
-        location: true,
-        ageRating: true,
-        longitude: true,
-        latitude: true,
-        tags: true,
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
-    });
-
-    return events.map(({ _count, ...db }) => {
-      return {
-        ...db,
-        tags: db.tags.map((tag) => tag.name),
-        participants: _count.participants,
-      };
-    });
-  }
-
   async findAll(params: {
     limit?: number;
     offset?: number;
-    userId?: string;
+    userId: string;
     dateOrder?: SortOrder;
     start?: Date;
     end?: Date;
@@ -226,7 +183,17 @@ export class EventsService {
         }
       : undefined;
 
-    console.log(typeof params.tags);
+    const attending = params.userId
+      ? {
+          where: {
+            attends: {
+              some: {
+                id: params.userId,
+              },
+            },
+          },
+        }
+      : undefined;
 
     const tagsFilter =
       params.tags && params.tags.length > 0
@@ -273,15 +240,17 @@ export class EventsService {
             participants: true,
           },
         },
+        participants: attending,
       },
       orderBy,
     });
 
-    return events.map(({ _count, ...db }) => {
+    return events.map(({ _count, participants, ...db }) => {
       return {
         ...db,
         tags: db.tags.map((tag) => tag.name),
         participants: _count.participants,
+        attending: !!participants ? participants.length > 0 : false,
       };
     });
   }

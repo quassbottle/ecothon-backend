@@ -49,3 +49,52 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 }
+
+@Injectable()
+export class HasTokenGuard implements CanActivate {
+  constructor(private readonly authService: AuthService) {}
+
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const request = context.switchToHttp().getRequest();
+    return this.validateRequest(request);
+  }
+
+  async validateRequest(request: RequestWithJwt): Promise<boolean> {
+    const authorization = request.headers['authorization'];
+
+    try {
+      if (!authorization) {
+        request.jwtPayload = null;
+        return true;
+      }
+
+      const payload = await this.authService.verify({
+        token: this.extractTokenFromHeader(request as unknown as Request),
+      });
+
+      if (!payload) {
+        request.jwtPayload = null;
+        return true;
+      }
+
+      request.jwtPayload = payload;
+    } catch (e) {
+      request.jwtPayload = null;
+      return true;
+    }
+
+    return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] =
+      (
+        request.headers as unknown as Request & {
+          headers: { authorization?: string };
+        }
+      )['authorization']?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
+}
