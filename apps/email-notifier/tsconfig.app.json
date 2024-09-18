@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "outDir": "../../dist/apps/email-notifier"
+  },
+  "include": ["src/**/*", "**/*.hbs"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}
