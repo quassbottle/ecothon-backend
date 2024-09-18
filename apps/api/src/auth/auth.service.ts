@@ -8,7 +8,6 @@ import { TokenDTO } from './dto/token.dto';
 import { UserLoginDTO } from './dto/login.dto';
 import { UserService } from '../user/user.service';
 import { Role } from '@prisma/client';
-import { TagsService } from '../tags/tags.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +15,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
-    private readonly tagsService: TagsService,
   ) {}
 
   async sign({ sub, role }: Omit<JwtPayload, 'exp'>) {
@@ -34,6 +32,8 @@ export class AuthService {
     const { email, password } = data;
 
     const user = await this.userService.findByEmail({ email });
+
+    console.log(bcrypt.compareSync(password, user.password));
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
       throw new UnauthorizedException();
@@ -69,10 +69,8 @@ export class AuthService {
 
     await this.userService.assertUserExistsByEmail(email);
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
     const user = await this.userService.create({
-      data: { email, password: hashedPassword },
+      data: { email, password },
     });
 
     const token = await this.sign({ sub: user.id, role: user.role });
