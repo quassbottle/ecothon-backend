@@ -36,8 +36,6 @@ model Users {
   email    String @unique
   password String
 
-  avatarUrl String? @map("avatar_url")
-
   createdAt DateTime @default(now()) @map("created_at")
 
   role Role @default(user)
@@ -49,6 +47,7 @@ model Users {
   eventsCreated  Events[]      @relation("UserEventsCreated")
   attends        Events[]      @relation("UserEventsAttending")
   tags           Tags[]        @relation("UserInterestingTags")
+  avatarUrl      String?       @map("avatar_url")
 
   @@map("users")
 }
@@ -65,17 +64,15 @@ model Posts {
   id String @id
 
   bannerUrl String? @map("banner_url")
-
-  name    String
-  content String
+  name      String
+  content   String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   author   Users?  @relation("UserPosts", fields: [authorId], references: [id])
   authorId String? @map("author_id")
-
-  tags Tags[] @relation("TagPosts")
+  tags     Tags[]  @relation("TagPosts")
 
   @@map("posts")
 }
@@ -97,26 +94,41 @@ model Events {
 
   name        String
   description String
-  bannerUrl   String?   @map("banner_url")
   startDate   DateTime  @map("start_date")
   location    String
   ageRating   AgeRating @map("age_rating")
-
-  latitude  Float
-  longitude Float
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  bannerUrl   String?   @map("banner_url")
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   author   Users?  @relation("UserEventsCreated", fields: [authorId], references: [id])
   authorId String? @map("author_id")
 
-  participants  Users[]    @relation("UserEventsAttending")
-  tags          Tags[]     @relation("TagEvents")
+  participants  Users[]              @relation("UserEventsAttending")
+  tags          Tags[]               @relation("TagEvents")
   comments      Comments[]
-  usersFavorite Users[]    @relation("UserEventsFavorite")
+  usersFavorite Users[]              @relation("UserEventsFavorite")
+  notifications EventNotifications[]
 
   @@map("events")
+}
+
+enum EventNotificationsType {
+  WEEKLY
+
+  @@map("event_notification_type")
+}
+
+model EventNotifications {
+  id String @id
+
+  event   Events                 @relation(references: [id], fields: [eventId])
+  eventId String                 @map("event_id")
+  type    EventNotificationsType
+
+  @@map("event_notifications")
 }
 
 model Tags {

@@ -71,6 +71,9 @@ importers:
       kafkajs:
         specifier: ^2.2.4
         version: 2.2.4
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
       nestjs-telegraf:
         specifier: ^2.8.1
         version: 2.8.1(@nestjs/common@10.4.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.1(@nestjs/common@10.4.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/microservices@10.4.3)(@nestjs/platform-express@10.4.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(reflect-metadata@0.2.2)(telegraf@4.16.3)(typescript@5.6.2)
@@ -108,6 +111,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.12
+      '@types/moment':
+        specifier: ^2.13.0
+        version: 2.13.0
       '@types/multer':
         specifier: ^1.4.12
         version: 1.4.12
@@ -912,6 +918,10 @@ packages:
 
   '@types/mjml@4.7.4':
     resolution: {integrity: sha512-vyi1vzWgMzFMwZY7GSZYX0GU0dmtC8vLHwpgk+NWmwbwRSrlieVyJ9sn5elodwUfklJM7yGl0zQeet1brKTWaQ==}
+
+  '@types/moment@2.13.0':
+    resolution: {integrity: sha512-DyuyYGpV6r+4Z1bUznLi/Y7HpGn4iQ4IVcGn8zrr1P4KotKLdH0sbK1TFR6RGyX6B+G8u83wCzL+bpawKU/hdQ==}
+    deprecated: This is a stub types definition for Moment (https://github.com/moment/moment). Moment provides its own type definitions, so you don't need @types/moment installed!
 
   '@types/multer@1.4.12':
     resolution: {integrity: sha512-pQ2hoqvXiJt2FP9WQVLPRO+AmiIm/ZYkavPlIQnx282u4ZrVdztx0pkh3jjpQt0Kz+YI0YhSG264y08UJKoUQg==}
@@ -2942,6 +2952,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -4967,6 +4980,10 @@ snapshots:
     dependencies:
       '@types/mjml-core': 4.15.0
     optional: true
+
+  '@types/moment@2.13.0':
+    dependencies:
+      moment: 2.30.1
 
   '@types/multer@1.4.12':
     dependencies:
@@ -7671,6 +7688,8 @@ snapshots:
       minimist: 1.2.8
 
   mkdirp@1.0.4: {}
+
+  moment@2.30.1: {}
 
   mri@1.2.0: {}
 

@@ -16,7 +16,11 @@ const WELCOME = `
   <body bgcolor="#D9D9D9">
     <table cellpadding="0" cellspacing="0" width="80%" bgcolor="#FFFFFF">
       <tr>
-        <th height="25px" style="background-color: rgba(21, 176, 151, 1.0);">
+        <th height="4px" style="background-color: rgba(21, 176, 151, 1.0);">
+        </th>
+      </tr>
+      <tr>
+        <th height="60px">
         </th>
       </tr>
       <tr>

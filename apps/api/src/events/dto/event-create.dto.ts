@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AgeRating } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { MaxLength, MinLength } from 'class-validator';
+import { IsOptional, MaxLength, MinLength } from 'class-validator';
 
 export class EventCreateDTO {
   @ApiProperty()
@@ -27,9 +27,6 @@ export class EventCreateDTO {
   @ApiProperty({ enum: ['zero', 'six', 'twelve', 'sixteen', 'eightteen'] })
   ageRating: AgeRating;
 
-  @ApiProperty({ format: 'url' })
-  bannerUrl: string;
-
   @ApiProperty()
   latitude: number;
 
@@ -38,4 +35,8 @@ export class EventCreateDTO {
 
   @ApiProperty()
   tags: string[];
+
+  @IsOptional()
+  @ApiProperty({ format: 'url' })
+  bannerUrl?: string;
 }
