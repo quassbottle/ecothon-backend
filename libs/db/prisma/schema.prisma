@@ -59,7 +59,7 @@ model Users {
   attends        Events[]      @relation("UserEventsAttending")
   tags           Tags[]        @relation("UserInterestingTags")
   avatarUrl      String?       @map("avatar_url")
-  Document       Document?     @relation("UserDocument")
+  document       Document?     @relation("UserDocument")
 
   @@map("users")
 }
@@ -178,7 +178,7 @@ model File {
   region        String
   bucket        String
   url           String
-  Document      Document[] @relation("DocumentFiles")
+  document      Document[] @relation("DocumentFiles")
 
   @@map("files")
 }
