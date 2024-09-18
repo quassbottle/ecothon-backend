@@ -7,9 +7,10 @@ export class DocumentOrganizationService {
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async getDocument(taxId: string) {
+  async getExternalDocument(taxId: string) {
     const url = new URL('https://api-fns.ru/api/search');
     url.searchParams.append('q', taxId);
     url.searchParams.append('key', this.config.get<string>('FNS_TOKEN'));
@@ -19,6 +20,23 @@ export class DocumentOrganizationService {
     );
     const orgResponse = res.data as OrganizationResponse;
 
-    return (orgResponse.Count) ? orgResponse.items[0] : {"ЮЛ": null};
+    return orgResponse.Count ? orgResponse.items[0] : { ЮЛ: null };
+  }
+
+  async getDocument(id: string) {
+    const candidate = await this.prisma.document.findFirst({ where: { id: id } });
+    if (!candidate) {
+      throw new DocumentNotFoundException();
+    }
+
+    return candidate;
+  }
+
+  async createDocument(params: { data: DocumentsCreateDto }) {
+    const { data } = params;
+
+    return this.prisma.document.create({
+      data: { ...data },
+    });
   }
 }
