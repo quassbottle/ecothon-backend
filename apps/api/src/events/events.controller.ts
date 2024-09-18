@@ -25,14 +25,16 @@ import { RequestWithJwt } from '../auth/auth.types';
 import { CommentsService } from '../comments/comments.service';
 import { CommentCreateDTO } from '../comments/dto/comment-create.dto';
 import { CommentModel } from '../comments/models/comment.model';
-import {
-  Serialize,
-  SerializeArray,
-} from '../../../../libs/common/src/interceptors/serialize.interceptor';
 import { UserModel } from '../user/models/user.model';
 import { EventCreateDTO } from './dto/event-create.dto';
 import { EventModel } from './models/event.model';
-import { ApiOkArrayResponse, mapToArrayResponse, SortOrder } from '@app/common';
+import {
+  ApiOkArrayResponse,
+  mapToArrayResponse,
+  Serialize,
+  SerializeArray,
+  SortOrder,
+} from '@app/common';
 
 @ApiBearerAuth('jwt')
 @ApiTags('Events')
