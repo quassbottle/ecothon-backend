@@ -59,6 +59,7 @@ model Users {
   attends        Events[]      @relation("UserEventsAttending")
   tags           Tags[]        @relation("UserInterestingTags")
   avatarUrl      String?       @map("avatar_url")
+  Document       Document?     @relation("UserDocument")
 
   @@map("users")
 }
@@ -171,12 +172,35 @@ model Comments {
 }
 
 model File {
-  id            String @id
-  type          String @db.VarChar(64)
-  original_name String @db.VarChar(64)
+  id            String     @id
+  type          String     @db.VarChar(64)
+  original_name String     @db.VarChar(64)
   region        String
   bucket        String
   url           String
+  Document      Document[] @relation("DocumentFiles")
 
   @@map("files")
+}
+
+model Document {
+  id                String        @id
+  organizationName  String        @map("organization_name")
+  taxId             String        @map("tax_id")
+  ogrn              String
+  address           String
+  emailOrganization String        @map("email_organization")
+  activityCode      String        @map("activity_code")
+  documentType      DocumentTypes @map("document_type")
+  userId            String        @unique @map("user_id")
+  user              Users?        @relation("UserDocument", references: [id], fields: [userId])
+  fileId            String        @unique @map("file_id")
+  file              File          @relation("DocumentFiles", fields: [fileId], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentTypes {
+  unverified
+  verified
 }
