@@ -48,11 +48,11 @@ export class EventModel implements Events {
 }
 
 export type EventCreate = Omit<
-  EventModel,
+  EventModel & {
+    bannerUrl?: string;
+  },
   'id' | 'createdAt' | 'updatedAt' | 'participants'
-> & {
-  bannerUrl?: string;
-};
+>
 
 export type EventUpdate = Partial<
   Omit<

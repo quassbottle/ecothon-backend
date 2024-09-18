@@ -17,6 +17,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       provide: 'EVENT_ID',
       useValue: init({ length: 16 }),
     },
+    {
+      provide: 'EVENT_NOTIFICATION_ID',
+      useValue: init({ length: 32 }),
+    },
   ],
   controllers: [EventsController],
   imports: [

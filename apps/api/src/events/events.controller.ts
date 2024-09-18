@@ -132,7 +132,11 @@ export class EventsController {
     @Req() req: RequestWithJwt,
   ) {
     return this.eventsService.create({
-      data: { ...data, authorId: req.jwtPayload.sub },
+      data: {
+        ...data,
+        bannerUrl: data.bannerUrl,
+        authorId: req.jwtPayload.sub,
+      },
     });
   }
 

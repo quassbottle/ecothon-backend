@@ -106,12 +106,29 @@ model Events {
   author   Users?  @relation("UserEventsCreated", fields: [authorId], references: [id])
   authorId String? @map("author_id")
 
-  participants  Users[]    @relation("UserEventsAttending")
-  tags          Tags[]     @relation("TagEvents")
+  participants  Users[]              @relation("UserEventsAttending")
+  tags          Tags[]               @relation("TagEvents")
   comments      Comments[]
-  usersFavorite Users[]    @relation("UserEventsFavorite")
+  usersFavorite Users[]              @relation("UserEventsFavorite")
+  notifications EventNotifications[]
 
   @@map("events")
+}
+
+enum EventNotificationsType {
+  WEEKLY
+
+  @@map("event_notification_type")
+}
+
+model EventNotifications {
+  id String @id
+
+  event   Events                 @relation(references: [id], fields: [eventId])
+  eventId String                 @map("event_id")
+  type    EventNotificationsType
+
+  @@map("event_notifications")
 }
 
 model Tags {
