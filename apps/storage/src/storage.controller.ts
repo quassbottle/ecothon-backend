@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -55,15 +54,14 @@ export class StorageController {
   })
   @ApiParam({
     name: 'id',
-    type: 'string',
-    format: 'uuid',
+    type: 'string'
   })
   @ApiResponse({
     type: FileModel,
   })
   @Get(':bucket/:id')
   async getLink(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @Param('bucket') bucket: string,
   ) {
     const candidate = await this.aws.file({ uuid: id, bucket });

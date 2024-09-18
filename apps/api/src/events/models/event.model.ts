@@ -38,18 +38,14 @@ export class EventModel implements Events {
   participants: number;
 
   @ApiProperty()
-  latitude: number;
-
-  @ApiProperty()
-  longitude: number;
-
-  @ApiProperty()
   tags: string[];
+
+  fileId: string;
 }
 
 export type EventCreate = Omit<
   EventModel,
-  'id' | 'createdAt' | 'updatedAt' | 'participants'
+  'id' | 'createdAt' | 'updatedAt' | 'participants' | 'fileId'
 > & {
   bannerUrl?: string;
 };

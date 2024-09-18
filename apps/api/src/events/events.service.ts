@@ -1,14 +1,15 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EventCreate, EventModel, EventUpdate } from './models/event.model';
+import { EventNotFoundException } from './exceptions/event.not-found.exception';
+import { AlreadyAttendingEventException } from './exceptions/event.already-attending.exception';
+import { NotAttendingEventException } from './exceptions/event.not-attending.exception';
 import { Prisma, Role } from '@prisma/client';
+import { EventCantModifyException } from './exceptions/event.cant-modify.exception';
 import { SortOrder } from '../../../../libs/common/src/utils/query.types';
 import { PrismaService } from '@app/db';
 import { UserService } from '../user/user.service';
-import { EventNotFoundException } from '@app/common/errors/events/event.not-found.exception';
-import { AlreadyAttendingEventException } from '@app/common/errors/events/event.already-attending.exception';
-import { EventCantModifyException } from '@app/common/errors/events/event.cant-modify.exception';
-import { NotAttendingEventException } from '@app/common/errors/events/event.not-attending.exception';
 import { TagsService } from '../tags/tags.service';
+import { FileService } from '../file/file.service';
 
 @Injectable()
 export class EventsService {
@@ -16,28 +17,9 @@ export class EventsService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly tagsService: TagsService,
+    private readonly fileService: FileService,
     @Inject('EVENT_ID') private readonly eventId: () => string,
   ) {}
-
-  async favorite(params: { userId: string; eventId: string }) {
-    const { userId, eventId } = params;
-
-    await this.userService.assertUserExistsById(userId);
-    await this.assertEventExistsById(eventId);
-
-    await this.prisma.users.update({
-      where: { id: userId },
-      data: {
-        eventsFavorite: {
-          connect: {
-            id: eventId,
-          },
-        },
-      },
-    });
-
-    return this.findById({ id: eventId });
-  }
 
   async leave(params: { userId: string; eventId: string }) {
     const { userId, eventId } = params;
@@ -124,8 +106,7 @@ export class EventsService {
         authorId: true,
         location: true,
         ageRating: true,
-        latitude: true,
-        longitude: true,
+        fileId: true,
         tags: true,
         _count: {
           select: {
@@ -137,52 +118,11 @@ export class EventsService {
 
     return {
       ...db,
+      fileId: undefined,
+      bannerUrl: await this.fileService.getFileById(db.fileId),
       tags: db.tags.map((tag) => tag.name),
       participants: _count.participants,
     };
-  }
-
-  async findAllNew(params: {
-    where: Prisma.EventsWhereInput;
-    take?: number;
-    skip?: number;
-  }): Promise<EventModel[]> {
-    const { where, take, skip } = params;
-
-    const events = await this.prisma.events.findMany({
-      where,
-      take,
-      skip,
-      orderBy: { startDate: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        bannerUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        startDate: true,
-        authorId: true,
-        location: true,
-        ageRating: true,
-        longitude: true,
-        latitude: true,
-        tags: true,
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
-    });
-
-    return events.map(({ _count, ...db }) => {
-      return {
-        ...db,
-        tags: db.tags.map((tag) => tag.name),
-        participants: _count.participants,
-      };
-    });
   }
 
   async findAll(params: {
@@ -265,9 +205,8 @@ export class EventsService {
         authorId: true,
         location: true,
         ageRating: true,
-        longitude: true,
-        latitude: true,
         tags: true,
+        fileId: true,
         _count: {
           select: {
             participants: true,
@@ -277,67 +216,16 @@ export class EventsService {
       orderBy,
     });
 
-    return events.map(({ _count, ...db }) => {
+    return Promise.all(
+      events.map(async ({ _count, ...db }) => {
       return {
         ...db,
+        bannerUrl: await this.fileService.getFileById(db.fileId),
+        fileId: undefined,
         tags: db.tags.map((tag) => tag.name),
         participants: _count.participants,
       };
-    });
-  }
-
-  async findFavoriteByUserId(params: {
-    id: string;
-    limit?: number;
-    offset?: number;
-    dateOrder?: SortOrder;
-  }) {
-    const { id, limit, offset } = params;
-
-    await this.userService.assertUserExistsById(id);
-
-    const orderBy = params.dateOrder
-      ? {
-          startDate: params.dateOrder,
-        }
-      : undefined;
-
-    const events = await this.prisma.events.findMany({
-      where: {
-        usersFavorite: {
-          some: {
-            id,
-          },
-        },
-      },
-      take: limit ?? 10,
-      skip: offset ?? 0,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        bannerUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        startDate: true,
-        authorId: true,
-        location: true,
-        ageRating: true,
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
-      orderBy,
-    });
-
-    return events.map(({ _count, ...db }) => {
-      return {
-        ...db,
-        participants: _count.participants,
-      };
-    });
+    }));
   }
 
   async create(params: { data: EventCreate }): Promise<EventModel> {

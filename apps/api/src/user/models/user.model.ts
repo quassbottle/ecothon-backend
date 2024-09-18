@@ -25,11 +25,13 @@ export class UserModel implements Users {
 
   @ApiProperty()
   tags?: string[];
+
+  fileId: string;
 }
 
 export type UserCreate = Omit<
   UserModel,
-  'id' | 'createdAt' | 'role' | 'avatarUrl'
+  'id' | 'createdAt' | 'role' | 'avatarUrl' | 'fileId'
 >;
 
 export type UserUpdate = Partial<

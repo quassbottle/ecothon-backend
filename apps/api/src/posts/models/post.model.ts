@@ -21,6 +21,8 @@ export class PostModel implements Posts {
   updatedAt: Date;
 
   authorId: string;
+
+  fileId: string;
 }
 
 export type PostCreate = Omit<PostModel, 'id' | 'createdAt' | 'updatedAt'> & {

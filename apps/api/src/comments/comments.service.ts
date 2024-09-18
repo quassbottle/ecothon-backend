@@ -4,10 +4,10 @@ import {
   CommentModel,
   CommentUpdate,
 } from './models/comment.model';
+import { CommentNotFoundException } from './exceptions/comment.not-found.exception';
+import { CommentCantModifyException } from './exceptions/comment.cant-modify.exception';
 import { Role } from '@prisma/client';
-import { CommentCantModifyException } from '@app/common/errors/comments/comments.cant-modify.exception';
 import { PrismaService } from '@app/db';
-import { CommentNotFoundException } from '@app/common/errors/comments/comments.not-found.exception';
 
 @Injectable()
 export class CommentsService {

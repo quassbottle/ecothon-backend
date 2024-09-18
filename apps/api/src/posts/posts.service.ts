@@ -1,11 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PostNotFoundException } from './exceptions/post.not-found.exception';
 import { PostCreate, PostModel, PostUpdate } from './models/post.model';
 import { PrismaService } from '@app/db';
-import { PostNotFoundException } from '@app/common/errors/posts/post.not-found.exception';
+import { PostGetDto } from './dto/post-get.dto';
+import { FileService } from '../file/file.service';
 
 @Injectable()
 export class PostsService {
   constructor(
+    private fileService: FileService,
     private readonly prisma: PrismaService,
     @Inject('POST_ID') private readonly postId: () => string,
   ) {}
@@ -16,10 +19,19 @@ export class PostsService {
     return this.prisma.posts.delete({ where: { id } });
   }
 
-  async findById(params: { id: string }) {
+  async findById(params: { id: string }): Promise<PostModel | null> {
     const { id } = params;
 
-    return this.prisma.posts.findFirst({ where: { id } });
+    const candidate = await this.prisma.posts.findFirst({
+      where: { id: id },
+      include: { file: true },
+    });
+
+    return {
+      ...candidate,
+      file: undefined,
+      bannerUrl: candidate?.file?.url
+    };
   }
 
   async assertPostExistsById(id: string) {
@@ -53,10 +65,10 @@ export class PostsService {
   async findAll(params: {
     limit?: number;
     offset?: number;
-  }): Promise<PostModel[]> {
+  }): Promise<PostGetDto[]> {
     const { limit, offset } = params;
 
-    return this.prisma.posts.findMany({
+    const candidate = await this.prisma.posts.findMany({
       take: limit ?? 10,
       skip: offset ?? 0,
       select: {
@@ -67,7 +79,15 @@ export class PostsService {
         createdAt: true,
         updatedAt: true,
         authorId: true,
+        fileId: true,
       },
     });
+
+    return Promise.all(
+      candidate.map(async (i) => {
+      i.bannerUrl = await this.fileService.getFileById(i.fileId) ?? null;
+      i.fileId = undefined;
+      return i;
+    }));
   }
 }

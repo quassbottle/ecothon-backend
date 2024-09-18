@@ -13,4 +13,7 @@ export class PostCreateDTO {
 
   @ApiProperty({ format: 'url' })
   bannerUrl: string;
+
+  @ApiProperty()
+  fileId: string;
 }

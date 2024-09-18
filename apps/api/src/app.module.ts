@@ -7,8 +7,8 @@ import { EventsModule } from './events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommentsModule } from './comments/comments.module';
 import { PrismaModule } from '@app/db';
-import { TelegramAuthModule } from './telegram-auth/telegram-auth.module';
 import { TagsModule } from './tags/tags.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { TagsModule } from './tags/tags.module';
     PostsModule,
     EventsModule,
     CommentsModule,
-    TelegramAuthModule,
     TagsModule,
+    FileModule,
   ],
 })
 export class AppModule {}

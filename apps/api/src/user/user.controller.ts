@@ -1,46 +1,43 @@
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiTags,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UserModel } from './models/user.model';
 import { AuthGuard } from '../auth/auth.guard';
 import { RequestWithJwt } from '../auth/auth.types';
-import { ApiOkArrayResponse, Serialize, SortOrder } from '@app/common';
-import { EventModel } from '../events/models/event.model';
-import { EventsService } from '../events/events.service';
-import {
-  Controller,
-  Get,
-  Param,
-  ParseEnumPipe,
-  ParseIntPipe,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Serialize } from '@app/common';
+import { UpdatePhotoDto } from './dto/update-photo.dto';
+import { UserOtherUpdateException } from './exceptions/user.other-update.exception';
+import { userWithPhotoUrlDto } from './dto/user-with-photo-url.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('jwt')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly eventsService: EventsService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  @ApiOkResponse({ type: UserModel })
-  @UseGuards(AuthGuard)
+  @ApiOkResponse({ type: userWithPhotoUrlDto })
   @Serialize(UserModel)
+  @UseGuards(AuthGuard)
   @Get('me')
-  async getMe(@Req() req: RequestWithJwt) {
+  async getMe(@Req() req: RequestWithJwt): Promise<{
+    createdAt: Date;
+    role: 'user' | 'admin';
+    avatarUrl: Promise<any>;
+    id: string;
+    email: string;
+  }> {
     const id = req.jwtPayload.sub;
 
     await this.userService.assertUserExistsById(id);
+    const user = await this.userService.findById({ id });
 
-    return this.userService.findById({ id });
+    return {
+      avatarUrl: await this.userService.getAvatarUrl({ id }),
+      createdAt: user.createdAt,
+      email: user.email,
+      role: user.role,
+      id: id,
+    };
   }
 
   @ApiOkResponse({ type: UserModel })
@@ -52,35 +49,12 @@ export class UserController {
     return this.userService.findById({ id });
   }
 
-  @ApiOkArrayResponse(EventModel)
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'order',
-    required: false,
-    enum: SortOrder,
-  })
-  @Get(':id')
-  async findFavoriteEventsById(
-    @Param('id') id: string,
-    @Query('take', new ParseIntPipe({ optional: true })) limit?: number,
-    @Query('skip', new ParseIntPipe({ optional: true })) offset?: number,
-    @Query('order', new ParseEnumPipe(SortOrder, { optional: true }))
-    dateOrder?: SortOrder,
-  ) {
-    await this.userService.assertUserExistsById(id);
-
-    return this.eventsService.findFavoriteByUserId({
-      id,
-      limit,
-      offset,
-      dateOrder,
-    });
+  @UseGuards(AuthGuard)
+  @Patch('update_photo')
+  async updatePhoto(@Body() dto: UpdatePhotoDto, @Req() req: RequestWithJwt) {
+    if (req.jwtPayload.sub !== dto.userId) {
+      throw new UserOtherUpdateException();
+    }
+    return await this.userService.updatePhoto({ data: dto });
   }
 }

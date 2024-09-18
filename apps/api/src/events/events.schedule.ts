@@ -16,16 +16,16 @@ export class EventsNotifierSchedule {
     const inWeek = now;
     inWeek.setDate(inWeek.getDate() + 7);
 
-    // console.log(inWeek);
+    console.log(inWeek);
 
-    // console.log(
-    //   await this.prisma.events.findMany({
-    //     where: {
-    //       startDate: {
-    //         gte: new Date(now.toDateString()),
-    //       },
-    //     },
-    //   }),
-    // );
+    console.log(
+      await this.prisma.events.findMany({
+        where: {
+          startDate: {
+            gte: new Date(now.toDateString()),
+          },
+        },
+      }),
+    );
   }
 }

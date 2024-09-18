@@ -31,11 +31,5 @@ export class EventCreateDTO {
   bannerUrl: string;
 
   @ApiProperty()
-  latitude: number;
-
-  @ApiProperty()
-  longitude: number;
-
-  @ApiProperty()
   tags: string[];
 }

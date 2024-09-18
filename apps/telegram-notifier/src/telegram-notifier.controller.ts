@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { TelegramNotifierService } from './telegram-notifier.service';
 import { MessagePattern, Transport, Payload } from '@nestjs/microservices';
-import { NotifyAllMessageDto } from '@app/common/messages/notify-all-message.dto';
+import { NotifyEventMessage } from './messages/notify-event.message';
 
 @Controller()
 export class TelegramNotifierController {
@@ -15,7 +15,7 @@ export class TelegramNotifierController {
   }
 
   @MessagePattern('notifications.telegram.all', Transport.KAFKA)
-  async notifyAboutEvent(@Payload() data: NotifyAllMessageDto) {
+  async notifyAboutEvent(@Payload() data: NotifyEventMessage) {
     try {
       if (data.eventId) {
         await this.telegramNotifierService.sendAllUsersByEventId(data.eventId);

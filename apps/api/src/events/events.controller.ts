@@ -52,19 +52,6 @@ export class EventsController {
     return this.eventsService.findById({ id });
   }
 
-  @ApiOkResponse({ type: EventModel })
-  @Serialize(EventModel)
-  @UseGuards(AuthGuard)
-  @Post(':id/favorite')
-  async favorite(@Param('id') id: string, @Req() req: RequestWithJwt) {
-    await this.eventsService.assertEventExistsById(id);
-
-    return this.eventsService.favorite({
-      eventId: id,
-      userId: req.jwtPayload.sub,
-    });
-  }
-
   @ApiOkArrayResponse(UserModel)
   @SerializeArray(UserModel)
   @ApiQuery({

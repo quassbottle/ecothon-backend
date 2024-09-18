@@ -1,10 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserCreate, UserModel, UserUpdate } from './models/user.model';
 import * as bcrypt from 'bcrypt';
+import { UserNotFoundException } from './exceptions/user.not-found.exception';
+import { UserExistsByEmailException } from './exceptions/user.exists-by-email.exception';
 import { PrismaService } from '@app/db';
-import { UserNotFoundException } from '@app/common/errors/users/user.not-found.exception';
-import { UserExistsByEmailException } from '@app/common/errors/users/user.exists-by-email.exception';
 import { TagsService } from '../tags/tags.service';
+import { UpdatePhotoDto } from './dto/update-photo.dto';
+import { FileNotFoundExceptionDto } from './exceptions/file.not-found.exception.dto';
 
 @Injectable()
 export class UserService {
@@ -13,6 +15,16 @@ export class UserService {
     private readonly tagsService: TagsService,
     @Inject('USER_ID') private readonly userId: () => string,
   ) {}
+
+  async getAvatarUrl(params: { id: string }): Promise<string | null> {
+    const { id } = params;
+    const candidate = await this.prisma.users.findFirst({
+      where: { id },
+      select: { file: true },
+    });
+
+    return candidate.file?.url ?? null;
+  }
 
   async assertUserExistsByEmail(email: string): Promise<void> {
     const candidate = await this.prisma.users.findFirst({ where: { email } });
@@ -28,6 +40,28 @@ export class UserService {
     if (!candidate) {
       throw new UserNotFoundException(id);
     }
+  }
+
+  async updatePhoto(params: {data: UpdatePhotoDto}) {
+    const { data } = params;
+    const user = this.prisma.users.findFirst({where: { id: data.userId } });
+
+    if (!user) {
+      throw new UserNotFoundException(data.userId);
+    }
+
+    const file = this.prisma.file.findFirst({where: {id: data.fileId}})
+
+    if (!file) {
+      throw new FileNotFoundExceptionDto();
+    }
+
+    const userUpdated = this.prisma.users.update({
+      where: { id: data.userId },
+      data: { fileId: data.fileId },
+    });
+
+    return userUpdated;
   }
 
   async findById(params: { id: string }): Promise<UserModel | null> {
@@ -51,7 +85,7 @@ export class UserService {
     data.password = bcrypt.hashSync(data.password, 10);
 
     const tags = await this.tagsService.filterExisting({
-      tags: data.tags ? [...data.tags] : undefined,
+      tags: data.tags,
     });
 
     return this.prisma.users.create({

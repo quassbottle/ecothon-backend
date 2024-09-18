@@ -6,6 +6,7 @@ import { CommentsModule } from '../comments/comments.module';
 import { UserModule } from '../user/user.module';
 import { EventsNotifierSchedule } from './events.schedule';
 import { TagsModule } from '../tags/tags.module';
+import { FileModule } from '../file/file.module';
 
 @Module({
   providers: [
@@ -21,7 +22,7 @@ import { TagsModule } from '../tags/tags.module';
     forwardRef(() => UserModule),
     forwardRef(() => CommentsModule),
     TagsModule,
+    FileModule
   ],
-  exports: [EventsService],
 })
 export class EventsModule {}
