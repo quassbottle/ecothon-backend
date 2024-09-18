@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '@app/db';
 import { TelegramUserAddDto } from './dto/telegram-user-add.dto';
 import { UserService } from '../user/user.service';
@@ -9,6 +9,8 @@ import { TelegramAuthLoginDto } from './dto/telegram-auth-login.dto';
 import {
   TelegramAuthHashInvalidException
 } from '@app/common/errors/telegram-auth/telegram-auth-hash-invalid.exception';
+import { InjectBot } from 'nestjs-telegraf';
+import { Telegraf } from 'telegraf';
 
 @Injectable()
 export class TelegramAuthService {
@@ -16,6 +18,8 @@ export class TelegramAuthService {
     private prisma: PrismaService,
     private userService: UserService,
     private authService: AuthService,
+    @Inject('EVENT_ID') private readonly generatePassword: () => string,
+    @InjectBot() private readonly bot: Telegraf,
   ) {}
 
   async register(params: { data: TelegramUserAddDto }): Promise<TokenDTO> {
@@ -23,10 +27,13 @@ export class TelegramAuthService {
     const { email } = data;
 
     await this.userService.assertUserExistsByEmail(email);
-    const password = 'wqfqfqw';
-
+    const password = this.generatePassword();
     const hashedPassword = bcrypt.hashSync(password, 10);
-
+    await this.bot.telegram.sendMessage(
+      data.telegramId,
+      `Вы создали новый аккаут на нашем сайте \nПароль: \`${password}\``,
+      { parse_mode: 'MarkdownV2' },
+    );
     const user = await this.userService.create({
       data: { email, password: hashedPassword },
     });
