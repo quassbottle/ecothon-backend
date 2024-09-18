@@ -35,6 +35,7 @@ import {
   SerializeArray,
   SortOrder,
 } from '@app/common';
+import { Roles } from '../auth/role.decorator';
 
 @ApiBearerAuth('jwt')
 @ApiTags('Events')
@@ -134,6 +135,7 @@ export class EventsController {
   @ApiOkResponse({ type: EventModel })
   @Serialize(EventModel)
   @UseGuards(AuthGuard)
+  @Roles('host', 'admin')
   @Post()
   async create(
     @Body(new ValidationPipe({ transform: true })) data: EventCreateDTO,
@@ -199,6 +201,7 @@ export class EventsController {
   @ApiOkResponse({ type: EventModel })
   @Serialize(EventModel)
   @UseGuards(AuthGuard)
+  @Roles('host', 'admin')
   @Patch(':id')
   async update(
     @Param('id') id: string,

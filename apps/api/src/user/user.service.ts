@@ -33,7 +33,7 @@ export class UserService {
   async findById(params: { id: string }): Promise<UserModel | null> {
     const { id } = params;
 
-    return this.prisma.users.findFirstOrThrow({ where: { id } });
+    return this.prisma.users.findFirst({ where: { id } });
   }
 
   async findByEmail(params: { email: string }): Promise<UserModel | null> {

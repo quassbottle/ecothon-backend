@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EventCreate, EventModel, EventUpdate } from './models/event.model';
-import { Prisma, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { SortOrder } from '../../../../libs/common/src/utils/query.types';
 import { PrismaService } from '@app/db';
 import { UserService } from '../user/user.service';
