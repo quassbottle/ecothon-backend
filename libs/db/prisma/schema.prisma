@@ -237,4 +237,5 @@ model Document {
 enum DocumentTypes {
   unverified
   verified
+  decline
 }
