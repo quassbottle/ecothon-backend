@@ -15,7 +15,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory: (config: ConfigService) => {
         return {
           token: config.get<string>('TELEGRAM_BOT_TOKEN'),
-          usePollUpdates: true,
         };
       },
     }),

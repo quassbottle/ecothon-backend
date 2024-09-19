@@ -3,7 +3,8 @@ import {
   Controller,
   Get,
   Param,
-  ParseEnumPipe, ParseFloatPipe,
+  ParseEnumPipe,
+  ParseFloatPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -134,6 +135,22 @@ export class EventsController {
     enum: ['favorite', 'attending'],
     required: false,
   })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'latitude',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'longitude',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+  })
   @UseGuards(HasTokenGuard)
   @Get()
   async findAll(
@@ -146,8 +163,10 @@ export class EventsController {
     @Query('start') start?: Date,
     @Query('end') end?: Date,
     @Query('radius', new ParseFloatPipe({ optional: false })) radius?: number,
-    @Query('latitude', new ParseFloatPipe({ optional: false })) latitude?: number,
-    @Query('longitude', new ParseFloatPipe({ optional: false })) longitude?: number,
+    @Query('latitude', new ParseFloatPipe({ optional: false }))
+    latitude?: number,
+    @Query('longitude', new ParseFloatPipe({ optional: false }))
+    longitude?: number,
     @Query('type', new ParseEnumPipe(EventsFilter, { optional: true }))
     type?: EventsFilter,
   ) {
