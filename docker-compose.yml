@@ -35,6 +35,20 @@ services:
     networks:
       - backend
 
+  telegram-notifier:
+    build:
+      context: '.'
+      dockerfile: './apps/telegram-notifier/Dockerfile'
+    networks:
+      - backend
+
+  email-notifier:
+    build:
+      context: '.'
+      dockerfile: './apps/telegram-notifier/Dockerfile'
+    networks:
+      - backend
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
