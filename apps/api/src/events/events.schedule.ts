@@ -15,8 +15,8 @@ export class EventsNotifierSchedule {
     @Inject('EVENT_NOTIFICATION_ID') private readonly id: () => string,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
-  async handleCron() {
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleBeforeWeek() {
     this.logger.warn('Notification has began');
 
     const inWeek = moments().add(7, 'd');
