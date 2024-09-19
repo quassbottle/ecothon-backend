@@ -10,6 +10,7 @@ import { PrismaModule } from '@app/db';
 import { TelegramAuthModule } from './telegram-auth/telegram-auth.module';
 import { TagsModule } from './tags/tags.module';
 import { DocumentOrganizationModule } from './document-organization/document-organization.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DocumentOrganizationModule } from './document-organization/document-org
     TelegramAuthModule,
     TagsModule,
     DocumentOrganizationModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}

@@ -50,6 +50,8 @@ model Users {
   role      Role      @default(user)
   gender    Gender    @default(unknown)
   birthdate DateTime?
+  latitude  Float?
+  longitude Float?
 
   telegram       UserTelegram? @relation("TelegramUsers")
   comments       Comments[]
@@ -179,4 +181,32 @@ model File {
   url           String
 
   @@map("files")
+}
+
+model EventAnalyticsEvents {
+  id String @id
+
+  eventId String @map("event_id")
+
+  userBirthdate DateTime? @map("user_birthdate")
+  userGender    Gender?   @map("user_gender")
+  userLatitude  Float?    @map("user_latitude")
+  userLongitude Float?    @map("user_longitude")
+
+  eventAgeRating AgeRating? @map("event_age_rating")
+  eventType      EventType? @map("event_type")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("event_analytics_events")
+}
+
+enum EventType {
+  attend
+  unattend
+  favorite
+  unfavorite
+  comment
+
+  @@map("event_types")
 }

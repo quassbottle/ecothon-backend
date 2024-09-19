@@ -12,10 +12,10 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { EventsService } from './events.service';
 import {
   ApiBearerAuth,
   ApiOkResponse,
+  ApiProperty,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -36,14 +36,21 @@ import {
   SortOrder,
 } from '@app/common';
 import { Roles } from '../auth/role.decorator';
+import { AnalyticsModel } from '../analytics/models/analytics.model';
+import { EventsService } from './events.service';
+
+export enum EventsFilter {
+  FAVORITE = 'favorite',
+  ATTENDING = 'attending',
+}
 
 @ApiBearerAuth('jwt')
 @ApiTags('Events')
 @Controller('events')
 export class EventsController {
   constructor(
-    private readonly eventsService: EventsService,
     private readonly commentsService: CommentsService,
+    private readonly eventsService: EventsService,
   ) {}
 
   @ApiOkResponse({ type: EventModel })
@@ -110,6 +117,20 @@ export class EventsController {
     isArray: true,
     required: false,
   })
+  @ApiQuery({
+    name: 'end',
+    type: 'date',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'start',
+    type: 'date',
+    required: false,
+  })
+  @ApiProperty({
+    name: 'type',
+    enum: ['favorite', 'attending'],
+  })
   @UseGuards(HasTokenGuard)
   @Get()
   async findAll(
@@ -119,6 +140,10 @@ export class EventsController {
     @Query('order', new ParseEnumPipe(SortOrder, { optional: true }))
     dateOrder?: SortOrder,
     @Query('tags') tags?: string[],
+    @Query('start') start?: Date,
+    @Query('end') end?: Date,
+    @Query('type', new ParseEnumPipe(EventsFilter, { optional: true }))
+    type?: EventsFilter,
   ) {
     return mapToArrayResponse(
       await this.eventsService.findAll({
@@ -126,6 +151,9 @@ export class EventsController {
         offset,
         dateOrder,
         tags,
+        start,
+        end,
+        type,
         userId: req.jwtPayload?.sub ?? undefined,
       }),
       offset,
@@ -217,6 +245,43 @@ export class EventsController {
     return this.eventsService.update({
       id,
       data,
+    });
+  }
+
+  @ApiOkResponse({ type: AnalyticsModel })
+  @ApiQuery({
+    name: 'end',
+    type: 'date',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'start',
+    type: 'date',
+    required: false,
+  })
+  @Serialize(AnalyticsModel)
+  @UseGuards(AuthGuard)
+  @Roles('host', 'admin')
+  @Get(':id/analytics')
+  async analytics(
+    @Param('id') id: string,
+    @Req() req: RequestWithJwt,
+    @Query('start') start?: string,
+    @Query('end') end?: string,
+  ) {
+    await this.eventsService.assertCanModifyEvent({
+      userId: req.jwtPayload.sub,
+      eventId: id,
+      role: req.jwtPayload.role,
+    });
+    return this.eventsService.analytics({
+      eventId: id,
+      period: {
+        start: start ? new Date(start) : new Date(),
+        end: end
+          ? new Date(end)
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
     });
   }
 }

@@ -9,7 +9,9 @@ import { AlreadyAttendingEventException } from '@app/common/errors/events/event.
 import { EventCantModifyException } from '@app/common/errors/events/event.cant-modify.exception';
 import { NotAttendingEventException } from '@app/common/errors/events/event.not-attending.exception';
 import { TagsService } from '../tags/tags.service';
-import moment from 'moment';
+import { EventsFilter } from './events.controller';
+import { AnalyticsService } from '../analytics/analytics.service';
+import { AnalyticsModel } from '../analytics/models/analytics.model';
 
 @Injectable()
 export class EventsService {
@@ -17,8 +19,31 @@ export class EventsService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly tagsService: TagsService,
+    private readonly analyticsService: AnalyticsService,
     @Inject('EVENT_ID') private readonly eventId: () => string,
   ) {}
+
+  async unfavorite(params: { userId: string; eventId: string }) {
+    const { userId, eventId } = params;
+
+    await this.userService.assertUserExistsById(userId);
+    await this.assertEventExistsById(eventId);
+
+    await this.prisma.users.update({
+      where: { id: userId },
+      data: {
+        eventsFavorite: {
+          disconnect: {
+            id: eventId,
+          },
+        },
+      },
+    });
+
+    //this.analyticsService.emit({ event: 'unfavorite', userId, eventId });
+
+    return this.findById({ id: eventId });
+  }
 
   async favorite(params: { userId: string; eventId: string }) {
     const { userId, eventId } = params;
@@ -151,6 +176,7 @@ export class EventsService {
     start?: Date;
     end?: Date;
     tags?: string[];
+    type?: EventsFilter;
   }): Promise<EventModel[]> {
     const { start, end } = params;
 
@@ -168,15 +194,27 @@ export class EventsService {
           }
         : undefined;
 
-    const whereParticipants = params.userId
-      ? {
-          participants: {
-            some: {
-              id: params.userId,
+    const whereParticipants =
+      params.userId && params.type && params.type === 'attending'
+        ? {
+            participants: {
+              some: {
+                id: params.userId,
+              },
             },
-          },
-        }
-      : undefined;
+          }
+        : undefined;
+
+    const whereFavorite =
+      params.userId && params.type && params.type === 'favorite'
+        ? {
+            usersFavorite: {
+              some: {
+                id: params.userId,
+              },
+            },
+          }
+        : undefined;
 
     const orderBy = params.dateOrder
       ? {
@@ -212,12 +250,11 @@ export class EventsService {
           }
         : undefined;
 
-    console.log(tagsFilter);
-
     const events = await this.prisma.events.findMany({
       where: {
         ...whereDateStartEnd,
         ...whereParticipants,
+        ...whereFavorite,
         ...tagsFilter,
       },
       take: params.limit ?? 10,
@@ -406,156 +443,54 @@ export class EventsService {
     });
   }
 
-  async analytics(params: { eventId: string }) {
-    const { eventId } = params;
+  async analytics(params: {
+    eventId: string;
+    period: { start: Date; end: Date };
+  }): Promise<AnalyticsModel> {
+    const { eventId, period } = params;
 
     await this.assertEventExistsById(eventId);
 
-    const total = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
+    const total = await this.analyticsService.total({ eventId });
+
+    const attend = await this.analyticsService.aggregate({
+      eventType: 'attend',
+      eventId,
+      period,
     });
-
-    const totalParticipantsCount = total._count.participants;
-
-    const femaleParticipants = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                gender: 'female',
-              },
-            },
-          },
-        },
-      },
+    const unattend = await this.analyticsService.aggregate({
+      eventType: 'unattend',
+      eventId,
+      period,
     });
-
-    const femaleParticipantsCount = femaleParticipants._count.participants;
-
-    const maleParticipants = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                gender: 'male',
-              },
-            },
-          },
-        },
-      },
+    const favorite = await this.analyticsService.aggregate({
+      eventType: 'favorite',
+      eventId,
+      period,
     });
-
-    const maleParticipantsCount = maleParticipants._count.participants;
-
-    const unknownParticipantsCount =
-      totalParticipantsCount - maleParticipantsCount - femaleParticipantsCount;
-
-    const totalAdult = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                birthdate: {
-                  not: null,
-                  gte: moment().add(-18, 'y').toISOString(),
-                },
-              },
-            },
-          },
-        },
-      },
+    const unfavorite = await this.analyticsService.aggregate({
+      eventType: 'unfavorite',
+      eventId,
+      period,
     });
-
-    const totalAdultCount = totalAdult._count.participants;
-
-    const totalSixteen = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                birthdate: {
-                  not: null,
-                  gte: moment().add(-16, 'y').toISOString(),
-                },
-              },
-            },
-          },
-        },
-      },
+    const comments = await this.analyticsService.aggregate({
+      eventType: 'comment',
+      eventId,
+      period,
     });
-
-    const totalSixteenCount = totalSixteen._count.participants;
-
-    const totalTwelve = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                birthdate: {
-                  not: null,
-                  gte: moment().add(-12, 'y').toISOString(),
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const totalTwelveCount = totalTwelve._count.participants;
-
-    const totalSix = await this.prisma.events.findFirst({
-      where: { id: eventId },
-      select: {
-        _count: {
-          select: {
-            participants: {
-              where: {
-                birthdate: {
-                  not: null,
-                  gte: moment().add(-6, 'y').toISOString(),
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const totalSixCount = totalSix._count.participants;
 
     return {
-      count: {
-        gender: {
-          total: totalParticipantsCount,
-          female: femaleParticipantsCount,
-          male: maleParticipantsCount,
-          unknown: unknownParticipantsCount,
-        },
-        age: {
-          adult: totalAdultCount,
-          sixteen: totalSixteenCount,
-          twelve: totalTwelveCount,
-          six: totalSixCount,
+      data: {
+        total,
+        period: {
+          attend,
+          unattend,
+          comments,
+          favorite,
+          unfavorite,
         },
       },
+      period,
     };
   }
 }

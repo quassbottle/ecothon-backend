@@ -8,11 +8,13 @@ import { Role } from '@prisma/client';
 import { CommentCantModifyException } from '@app/common/errors/comments/comments.cant-modify.exception';
 import { PrismaService } from '@app/db';
 import { CommentNotFoundException } from '@app/common/errors/comments/comments.not-found.exception';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class CommentsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly analyticsService: AnalyticsService,
     @Inject('COMMENT_ID') private readonly commentId: () => string,
   ) {}
 
@@ -41,15 +43,23 @@ export class CommentsService {
     }
   }
 
-  create(params: { data: CommentCreate }): Promise<CommentModel> {
+  async create(params: { data: CommentCreate }): Promise<CommentModel> {
     const { data } = params;
 
-    return this.prisma.comments.create({
+    const created = await this.prisma.comments.create({
       data: {
         ...data,
         id: this.commentId(),
       },
     });
+
+    this.analyticsService.emit({
+      event: 'comment',
+      userId: data.userId,
+      eventId: data.eventId,
+    });
+
+    return created;
   }
 
   delete(params: { id: string }): Promise<CommentModel> {

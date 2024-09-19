@@ -21,6 +21,18 @@ export class UserModel implements Users {
   createdAt: Date;
 
   @ApiProperty()
+  gender: $Enums.Gender;
+
+  @ApiProperty()
+  birthdate: Date;
+
+  @ApiProperty()
+  latitude: number;
+
+  @ApiProperty()
+  longitude: number;
+
+  @ApiProperty()
   avatarUrl: string;
 
   @ApiProperty()
@@ -29,7 +41,14 @@ export class UserModel implements Users {
 
 export type UserCreate = Omit<
   UserModel,
-  'id' | 'createdAt' | 'role' | 'avatarUrl'
+  | 'id'
+  | 'createdAt'
+  | 'role'
+  | 'avatarUrl'
+  | 'latitude'
+  | 'longitude'
+  | 'birthdate'
+  | 'gender'
 >;
 
 export type UserUpdate = Partial<
