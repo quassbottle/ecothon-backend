@@ -84,6 +84,8 @@ export class AnalyticsService {
       },
     });
 
+    console.log(total, eventId);
+
     const totalParticipantsCount = total._count.participants;
 
     const femaleParticipants = await this.prisma.events.findFirst({
