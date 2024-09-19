@@ -35,11 +35,11 @@ export class DocumentOrganizationService {
     return candidate;
   }
 
-  async createDocument(params: { data: DocumentsCreateDto }) {
-    const { data } = params;
+  // async createDocument(params: { data: DocumentsCreateDto }) {
+  //   const { data } = params;
 
-    return this.prisma.document.create({
-      data: { ...data },
-    });
-  }
+  //   return this.prisma.document.create({
+  //     data: { ...data },
+  //   });
+  // }
 }
