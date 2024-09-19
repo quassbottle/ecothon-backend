@@ -14,7 +14,7 @@ RUN pnpm install
 RUN ls
 
 RUN pnpm run schema:generate
-RUN pnpm run build api
+RUN pnpm run build telegram-notifier
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
