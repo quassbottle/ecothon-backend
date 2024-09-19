@@ -301,8 +301,6 @@ export class EventsService {
       return mark <= radius;
     });
 
-    console.log(events);
-
     return events.map(({ _count, participants, ...db }) => {
       return {
         ...db,
