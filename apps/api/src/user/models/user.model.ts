@@ -5,6 +5,18 @@ import { IsEnum } from 'class-validator';
 
 export class UserModel implements Users {
   @ApiProperty()
+  firstName: string;
+
+  @ApiProperty()
+  middleName: string;
+
+  @ApiProperty()
+  lastName: string;
+
+  @ApiProperty()
+  trees: number;
+
+  @ApiProperty()
   id: string;
 
   @ApiProperty()

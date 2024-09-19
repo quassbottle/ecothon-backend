@@ -47,11 +47,15 @@ model Users {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  role      Role      @default(user)
-  gender    Gender    @default(unknown)
-  birthdate DateTime?
-  latitude  Float?
-  longitude Float?
+  role       Role      @default(user)
+  gender     Gender    @default(unknown)
+  birthdate  DateTime?
+  latitude   Float?
+  longitude  Float?
+  firstName  String?   @map("first_name")
+  middleName String?   @map("middle_name")
+  lastName   String?   @map("last_name")
+  trees      Int       @default(0)
 
   telegram       UserTelegram? @relation("TelegramUsers")
   comments       Comments[]
