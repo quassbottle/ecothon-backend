@@ -1,7 +1,16 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { DocumentOrganizationService } from './document-organization.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { DocumentGetDto } from './dto/document-get.dto';
 import { DocumentsCreateDto } from './dto/documents-create.dto';
 import { DocumentEditDto } from './dto/document-edit.dto';
 import { mapToArrayResponse } from '@app/common';
@@ -31,14 +40,14 @@ export class DocumentOrganizationController {
   @UseGuards(AuthGuard)
   @Post()
   async createDocument(@Body() dto: DocumentsCreateDto) {
-    return await this.documentOrganizationService.createDocument({data: dto});
+    return await this.documentOrganizationService.createDocument({ data: dto });
   }
 
   @UseGuards(AuthGuard)
   @Roles('admin')
   @Patch()
   async editDocument(@Body() dto: DocumentEditDto) {
-    return await this.documentOrganizationService.editDocument({data: dto});
+    return await this.documentOrganizationService.editDocument({ data: dto });
   }
 
   @Get()
