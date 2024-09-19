@@ -14,7 +14,7 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DocumentsCreateDto } from './dto/documents-create.dto';
 import { DocumentEditDto } from './dto/document-edit.dto';
 import { mapToArrayResponse } from '@app/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard, HasTokenGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/role.decorator';
 
 @ApiTags('Documents')
@@ -24,26 +24,26 @@ export class DocumentOrganizationController {
     private readonly documentOrganizationService: DocumentOrganizationService,
   ) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(HasTokenGuard)
   @Get(':tax_id/external')
   async getExternalDocument(@Param('tax_id') taxId: string) {
     return await this.documentOrganizationService.getExternalDocument(taxId);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(HasTokenGuard)
   @Roles('admin')
   @Get(':id')
   async getDocument(@Param('id') id: string) {
     return await this.documentOrganizationService.getDocument(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(HasTokenGuard)
   @Post()
   async createDocument(@Body() dto: DocumentsCreateDto) {
     return await this.documentOrganizationService.createDocument({ data: dto });
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(HasTokenGuard)
   @Roles('admin')
   @Patch()
   async editDocument(@Body() dto: DocumentEditDto) {
@@ -59,7 +59,7 @@ export class DocumentOrganizationController {
     name: 'offset',
     required: false,
   })
-  @UseGuards(AuthGuard)
+  @UseGuards(HasTokenGuard)
   @Roles('admin')
   async getAllDocuments(
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,

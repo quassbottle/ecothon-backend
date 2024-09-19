@@ -8,11 +8,13 @@ import { EventsNotifierSchedule } from './events.schedule';
 import { TagsModule } from '../tags/tags.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DistanceService } from './coordinates';
 
 @Module({
   providers: [
     EventsNotifierSchedule,
     EventsService,
+    DistanceService,
     {
       provide: 'EVENT_ID',
       useValue: init({ length: 16 }),
