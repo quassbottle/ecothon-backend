@@ -6,9 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth/auth.service';
 import { TokenDTO } from '../auth/dto/token.dto';
 import { TelegramAuthLoginDto } from './dto/telegram-auth-login.dto';
-import {
-  TelegramAuthHashInvalidException
-} from '@app/common/errors/telegram-auth/telegram-auth-hash-invalid.exception';
+import { TelegramAuthHashInvalidException } from '@app/common/errors/telegram-auth/telegram-auth-hash-invalid.exception';
 import { InjectBot } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
 
@@ -35,7 +33,13 @@ export class TelegramAuthService {
       { parse_mode: 'MarkdownV2' },
     );
     const user = await this.userService.create({
-      data: { email, password: hashedPassword },
+      data: {
+        email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        middleName: null,
+      },
     });
 
     await this.prisma.userTelegram.create({
