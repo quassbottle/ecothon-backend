@@ -66,7 +66,7 @@ export class UserController {
     required: false,
     enum: SortOrder,
   })
-  @Get(':id')
+  @Get(':id/favorite')
   async findFavoriteEventsById(
     @Param('id') id: string,
     @Query('take', new ParseIntPipe({ optional: true })) limit?: number,
