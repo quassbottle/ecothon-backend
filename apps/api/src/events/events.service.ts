@@ -184,8 +184,7 @@ export class EventsService {
     radius: number;
   }): Promise<EventModel[]> {
     const { start, end } = params;
-    const { latitude, longitude } = params;
-    const { radius } = params;
+    const { latitude, longitude, radius } = params;
 
     if ((!start && end) || (start && !end)) {
       throw new BadRequestException('Either start or end must be provided');
@@ -222,7 +221,6 @@ export class EventsService {
             },
           }
         : undefined;
-
 
     const orderBy = params.dateOrder
       ? {
@@ -291,15 +289,17 @@ export class EventsService {
       orderBy,
     });
 
-    events = events.filter((i) => {
-      const mark = this.distanceService.getDistanceToMark(
-        i.latitude,
-        i.longitude,
-        latitude,
-        longitude,
-      );
-      return mark <= radius;
-    });
+    if (latitude || longitude || radius) {
+      events = events.filter((i) => {
+        const mark = this.distanceService.getDistanceToMark(
+          i.latitude,
+          i.longitude,
+          latitude,
+          longitude,
+        );
+        return mark <= radius;
+      });
+    }
 
     return events.map(({ _count, participants, ...db }) => {
       return {
