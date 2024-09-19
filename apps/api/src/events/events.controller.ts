@@ -85,6 +85,8 @@ export class EventsController {
     name: 'offset',
     required: false,
   })
+  @UseGuards(AuthGuard)
+  @Roles('host', 'admin')
   @Get(':id/participants')
   async getParticipants(
     @Param('id') id: string,

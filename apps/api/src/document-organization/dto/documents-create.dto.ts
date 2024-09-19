@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DocumentTypes } from '@prisma/client';
+
 
 export class DocumentsCreateDto {
   @ApiProperty()
@@ -21,14 +21,8 @@ export class DocumentsCreateDto {
   activityCode: string;
 
   @ApiProperty()
-  documentType: DocumentTypes;
-
-  @ApiProperty()
   userId: string;
 
   @ApiProperty()
-  file: File;
-
-  @ApiProperty()
-  fileUrl: string;
+  fileId: string;
 }
