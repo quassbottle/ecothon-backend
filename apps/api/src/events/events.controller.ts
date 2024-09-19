@@ -132,6 +132,7 @@ export class EventsController {
   @ApiProperty({
     name: 'type',
     enum: ['favorite', 'attending'],
+    required: false
   })
   @UseGuards(HasTokenGuard)
   @Get()
