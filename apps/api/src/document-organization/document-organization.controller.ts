@@ -10,13 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DocumentOrganizationService } from './document-organization.service';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DocumentsCreateDto } from './dto/documents-create.dto';
 import { DocumentEditDto } from './dto/document-edit.dto';
 import { mapToArrayResponse } from '@app/common';
 import { HasTokenGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/role.decorator';
 
+@ApiBearerAuth('jwt')
 @ApiTags('Documents')
 @Controller('document')
 export class DocumentOrganizationController {
