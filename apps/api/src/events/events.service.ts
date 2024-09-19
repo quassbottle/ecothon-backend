@@ -281,6 +281,7 @@ export class EventsService {
         longitude: true,
         latitude: true,
         tags: true,
+        participants: true,
         _count: {
           select: {
             participants: true,
