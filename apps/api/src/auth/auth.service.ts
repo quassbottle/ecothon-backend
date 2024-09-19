@@ -31,9 +31,11 @@ export class AuthService {
     const { data } = params;
     const { email, password } = data;
 
-    await this.userService.assertUserExistsByEmail(email);
+    await this.userService.assertUserNotExistsByEmail(email);
 
     const user = await this.userService.findByEmail({ email });
+
+    console.log({ user });
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
       throw new UnauthorizedException();

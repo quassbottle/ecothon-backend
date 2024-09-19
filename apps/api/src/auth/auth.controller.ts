@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { UserLoginDTO } from './dto/login.dto';
 import { UserRegisterDTO } from './dto/register.dto';
 import { TokenDTO } from './dto/token.dto';
-import { Serialize } from '../../../../libs/common/src/interceptors/serialize.interceptor';
+import { Serialize } from '@app/common';
 
 @ApiTags('Auth')
 @Controller('auth')

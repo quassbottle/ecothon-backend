@@ -22,6 +22,14 @@ export class UserService {
     }
   }
 
+  async assertUserNotExistsByEmail(email: string): Promise<void> {
+    const candidate = await this.prisma.users.findFirst({ where: { email } });
+
+    if (!candidate) {
+      throw new UserNotFoundException(email);
+    }
+  }
+
   async assertUserExistsById(id: string): Promise<void> {
     const candidate = await this.prisma.users.findFirst({ where: { id } });
 
