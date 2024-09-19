@@ -5,7 +5,7 @@ import { NotifyAllMessageDto } from '@app/common/messages/notify-all-message.dto
 
 @Controller()
 export class EmailNotifierController {
-  constructor(private readonly telegramNotifierService: EmailNotifierService) {}
+  constructor(private readonly emailNotifierService: EmailNotifierService) {}
 
   @MessagePattern('notifications.telegram.event-soon', Transport.KAFKA)
   async eventSoon() {
@@ -16,7 +16,7 @@ export class EmailNotifierController {
   async notifyAboutEvent(@Payload() data: NotifyAllMessageDto) {
     try {
       if (data.eventId) {
-        await this.telegramNotifierService.sendAllUsersByEventId(data.eventId);
+        await this.emailNotifierService.sendAllUsersByEventId(data.eventId);
       }
     } catch (e) {
       console.log(e);
