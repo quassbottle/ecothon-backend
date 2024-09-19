@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '@app/db';
+import { DocumentNotFoundException } from '../comments/exceptions/document-not-found.exception';
+import { DocumentsCreateDto } from './dto/documents-create.dto';
 
 @Injectable()
 export class DocumentOrganizationService {
@@ -24,7 +27,7 @@ export class DocumentOrganizationService {
   }
 
   async getDocument(id: string) {
-    const candidate = await this.prisma.document.findFirst({ where: { id: id } });
+    const candidate = await this.prisma.document.findFirst({ where: { id } });
     if (!candidate) {
       throw new DocumentNotFoundException();
     }

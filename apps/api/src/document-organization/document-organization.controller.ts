@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { DocumentOrganizationService } from './document-organization.service';
 import { ApiTags } from '@nestjs/swagger';
-import { DocumentGetDto } from './dto/document-get.dto';
 
 @ApiTags('Documents')
 @Controller('document')
