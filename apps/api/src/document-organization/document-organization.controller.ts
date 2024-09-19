@@ -14,7 +14,7 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DocumentsCreateDto } from './dto/documents-create.dto';
 import { DocumentEditDto } from './dto/document-edit.dto';
 import { mapToArrayResponse } from '@app/common';
-import { AuthGuard, HasTokenGuard } from '../auth/auth.guard';
+import { HasTokenGuard } from '../auth/auth.guard';
 import { Roles } from '../auth/role.decorator';
 
 @ApiTags('Documents')

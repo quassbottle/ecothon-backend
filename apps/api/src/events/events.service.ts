@@ -155,6 +155,7 @@ export class EventsService {
         latitude: true,
         longitude: true,
         tags: true,
+        author: true,
         _count: {
           select: {
             participants: true,
@@ -165,6 +166,7 @@ export class EventsService {
 
     return {
       ...db,
+      hostEmail: db.author.email,
       tags: db.tags.map((tag) => tag.name),
       participants: _count.participants,
     };
@@ -228,18 +230,6 @@ export class EventsService {
         }
       : undefined;
 
-    const attending = params.userId
-      ? {
-          where: {
-            attends: {
-              some: {
-                id: params.userId,
-              },
-            },
-          },
-        }
-      : undefined;
-
     const tagsFilter =
       params.tags && params.tags.length > 0
         ? {
@@ -279,6 +269,7 @@ export class EventsService {
         longitude: true,
         latitude: true,
         tags: true,
+        author: true,
         participants: true,
         _count: {
           select: {
@@ -304,6 +295,7 @@ export class EventsService {
     return events.map(({ _count, participants, ...db }) => {
       return {
         ...db,
+        hostEmail: db.author.email,
         tags: db.tags.map((tag) => tag.name),
         participants: _count.participants,
         attending: !!participants ? participants.length > 0 : false,
@@ -348,6 +340,7 @@ export class EventsService {
         authorId: true,
         location: true,
         ageRating: true,
+        author: true,
         _count: {
           select: {
             participants: true,
@@ -360,6 +353,7 @@ export class EventsService {
     return events.map(({ _count, ...db }) => {
       return {
         ...db,
+        hostEmail: db.author.email,
         participants: _count.participants,
       };
     });

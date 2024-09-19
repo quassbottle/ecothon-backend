@@ -48,18 +48,27 @@ export class EventModel implements Events {
 
   @ApiProperty()
   attending?: boolean;
+
+  @ApiProperty()
+  hostEmail: string;
 }
 
 export type EventCreate = Omit<
   EventModel & {
     bannerUrl?: string;
   },
-  'id' | 'createdAt' | 'updatedAt' | 'participants' | 'attending'
+  'id' | 'createdAt' | 'updatedAt' | 'participants' | 'attending' | 'hostEmail'
 >;
 
 export type EventUpdate = Partial<
   Omit<
     EventModel,
-    'id' | 'createdAt' | 'updatedAt' | 'authorId' | 'participants' | 'attending'
+    | 'id'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'authorId'
+    | 'participants'
+    | 'attending'
+    | 'hostEmail'
   >
 >;

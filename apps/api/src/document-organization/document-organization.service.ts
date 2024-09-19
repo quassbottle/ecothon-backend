@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@app/db';
@@ -6,7 +6,6 @@ import { DocumentNotFoundException } from './exceptions/document-not-found.excep
 import { DocumentsCreateDto } from './dto/documents-create.dto';
 import { UserNotFoundException } from '@app/common/errors/users/user.not-found.exception';
 import { DocumentEditDto } from './dto/document-edit.dto';
-import { PostModel } from '../posts/models/post.model';
 
 @Injectable()
 export class DocumentOrganizationService {
@@ -74,7 +73,9 @@ export class DocumentOrganizationService {
       where: { id: data.userId },
     });
 
-    const document = await this.prisma.file.findFirst({where: {id: data.fileId}});
+    const document = await this.prisma.file.findFirst({
+      where: { id: data.fileId },
+    });
 
     if (!document) {
       throw new BadRequestException();
@@ -85,7 +86,7 @@ export class DocumentOrganizationService {
     }
 
     return this.prisma.document.create({
-      data: { ...data, id: this.documentId(), documentType: "unverified" },
+      data: { ...data, id: this.documentId(), documentType: 'unverified' },
     });
   }
 }
