@@ -12,15 +12,16 @@ import { ApiOkArrayResponse, Serialize, SortOrder } from '@app/common';
 import { EventModel } from '../events/models/event.model';
 import { EventsService } from '../events/events.service';
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseEnumPipe,
-  ParseIntPipe,
+  ParseIntPipe, Post,
   Query,
   Req,
-  UseGuards,
-} from '@nestjs/common';
+  UseGuards
+} from "@nestjs/common";
 
 @ApiTags('Users')
 @ApiBearerAuth('jwt')
