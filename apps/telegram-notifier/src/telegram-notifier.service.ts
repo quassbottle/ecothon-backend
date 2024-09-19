@@ -16,7 +16,7 @@ export class TelegramNotifierService {
   async sendAllUsersByEventId(eventId: string) {
     const event = await this.prisma.events.findFirst({
       where: { id: eventId },
-      select: { participants: true },
+      select: { participants: { select: { telegram: true } }, id: true },
     });
 
     let sent = 0;
@@ -29,10 +29,10 @@ export class TelegramNotifierService {
     for (const user of event.participants) {
       try {
         // TODO: исправить сообщение
-        if (user.telegramId) {
+        if (user.telegram.telegramId) {
           await this.rateLimiter.execute(() =>
             this.bot.telegram.sendMessage(
-              user.telegramId,
+              user.telegram.telegramId,
               `Событие № ${eventId} началось`,
             ),
           );
