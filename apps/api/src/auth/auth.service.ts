@@ -62,7 +62,7 @@ export class AuthService {
 
   async register(params: { data: UserRegisterDTO }): Promise<TokenDTO> {
     const { data } = params;
-    const { email, password } = data;
+    const { email, password, firstName, lastName, middleName } = data;
 
     if (data.tags) data.tags = data.tags.slice(0, 10);
     else data.tags = [];
@@ -70,7 +70,7 @@ export class AuthService {
     await this.userService.assertUserExistsByEmail(email);
 
     const user = await this.userService.create({
-      data: { email, password },
+      data: { email, password, firstName, lastName, middleName },
     });
 
     const token = await this.sign({ sub: user.id, role: user.role });

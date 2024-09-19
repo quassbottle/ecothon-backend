@@ -12,6 +12,24 @@ export class UserRegisterDTO {
   password: string;
 
   @ApiProperty()
+  @MinLength(1)
+  @MaxLength(255)
+  @IsOptional()
+  firstName?: string;
+
+  @ApiProperty()
+  @MinLength(1)
+  @MaxLength(255)
+  @IsOptional()
+  middleName?: string;
+
+  @ApiProperty()
+  @MinLength(1)
+  @MaxLength(255)
+  @IsOptional()
+  lastName?: string;
+
+  @ApiProperty()
   @IsOptional()
   tags?: string[];
 }

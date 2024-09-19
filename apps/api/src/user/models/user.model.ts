@@ -61,6 +61,7 @@ export type UserCreate = Omit<
   | 'longitude'
   | 'birthdate'
   | 'gender'
+  | 'trees'
 >;
 
 export type UserUpdate = Partial<
