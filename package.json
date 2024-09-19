@@ -12,12 +12,19 @@
     "start:api:dev": "nest start api --watch",
     "start:api:debug": "nest start api --debug --watch",
     "start:api:prod": "npx dotenv -e .env.production -- node dist/apps/api/main",
+
     "start:storage:dev": "nest start storage --watch",
     "start:storage:debug": "nest start storage --debug --watch",
     "start:storage:prod": "npx dotenv -e .env.production -- node dist/apps/storage/main",
+
     "start:email-notifier:dev": "nest start email-notifier --watch",
     "start:email-notifier:debug": "nest start email-notifier --debug --watch",
     "start:email-notifier:prod": "npx dotenv -e .env.production -- node dist/apps/email-notifier/main",
+    
+    "start:telegram-notifier:dev": "nest start telegram-notifier --watch",
+    "start:telegram-notifier:debug": "nest start telegram-notifier --debug --watch",
+    "start:telegram-notifier:prod": "npx dotenv -e .env.production -- node dist/apps/telegram-notifier/main",
+
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "schema:generate": "npx dotenv -- npx prisma generate --schema ./libs/db/prisma/schema.prisma",
     "migrate:dev": "npx dotenv -- npx prisma migrate dev --schema ./libs/db/prisma/schema.prisma",
