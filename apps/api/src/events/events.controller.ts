@@ -129,10 +129,10 @@ export class EventsController {
     type: 'date',
     required: false,
   })
-  @ApiProperty({
+  @ApiQuery({
     name: 'type',
     enum: ['favorite', 'attending'],
-    required: false
+    required: false,
   })
   @UseGuards(HasTokenGuard)
   @Get()

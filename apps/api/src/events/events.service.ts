@@ -223,6 +223,7 @@ export class EventsService {
           }
         : undefined;
 
+
     const orderBy = params.dateOrder
       ? {
           startDate: params.dateOrder,
@@ -285,7 +286,6 @@ export class EventsService {
             participants: true,
           },
         },
-        participants: attending,
       },
       orderBy,
     });
@@ -297,7 +297,6 @@ export class EventsService {
         latitude,
         longitude,
       );
-      console.log(mark);
       return mark <= radius;
     });
 
