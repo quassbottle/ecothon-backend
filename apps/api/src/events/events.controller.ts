@@ -9,16 +9,17 @@ import {
   Patch,
   Post,
   Query,
-  Req,
+  Req, Res,
   UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+  ValidationPipe
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { format } from 'fast-csv';
 import { EventUpdateDTO } from './dto/event-update.dto';
 import { AuthGuard, HasTokenGuard } from '../auth/auth.guard';
 import { RequestWithJwt } from '../auth/auth.types';
@@ -28,6 +29,7 @@ import { CommentModel } from '../comments/models/comment.model';
 import { UserModel } from '../user/models/user.model';
 import { EventCreateDTO } from './dto/event-create.dto';
 import { EventModel } from './models/event.model';
+import { createObjectCsvWriter } from 'csv-writer';
 import {
   ApiOkArrayResponse,
   mapToArrayResponse,
@@ -38,6 +40,8 @@ import {
 import { Roles } from '../auth/role.decorator';
 import { AnalyticsModel } from '../analytics/models/analytics.model';
 import { EventsService } from './events.service';
+import * as fs from "fs";
+import * as moment from 'moment';
 
 export enum EventsFilter {
   FAVORITE = 'favorite',
@@ -310,5 +314,78 @@ export class EventsController {
           : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
+  }
+
+  @ApiOkResponse({ type: AnalyticsModel })
+  @ApiQuery({
+    name: 'end',
+    type: 'date',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'start',
+    type: 'date',
+    required: false,
+  })
+  @Serialize(AnalyticsModel)
+  @UseGuards(AuthGuard)
+  @Roles('host', 'admin')
+  @Get(':id/analytics/download')
+  async analyticsDownload (
+    @Param('id') id: string,
+    @Res() res: any,
+    @Req() req: RequestWithJwt,
+    @Query('start') start?: string,
+    @Query('end') end?: string,
+  ) {
+    await this.eventsService.assertCanModifyEvent({
+      userId: req.jwtPayload.sub,
+      eventId: id,
+      role: req.jwtPayload.role,
+    });
+    const candidate = await this.eventsService.analytics({
+      eventId: id,
+      period: {
+        start: start ? new Date(start) : new Date(),
+        end: end
+          ? new Date(end)
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const ws = fs.createWriteStream('./output.csv', { flags: 'w' });
+
+    format({ headers: false })
+      .transform((row: any) => ({
+        id: row.id,
+        name: row.name,
+        email: row.email,
+      }))
+      .pipe(ws);
+
+    ws.write(`A,B\n`);
+    ws.write(`За всё время,Количество\n`);
+    ws.write(`Мужчины,${candidate.data.total.gender.male}\n`);
+    ws.write(`Женщины,${candidate.data.total.gender.female}\n`);
+    ws.write(`Неизвестно,${candidate.data.total.gender.unknown}\n`);
+    ws.write(`Сумма,${candidate.data.total.gender.total}\n`);
+    ws.write(`,\n`);
+    const formattedDateStart = `${candidate.period.start.getDate()}-${candidate.period.start.getMonth() + 1}-${candidate.period.start.getFullYear()}`;
+    const formattedDateEnd = `${candidate.period.end.getDate()}-${candidate.period.end.getMonth() + 1}-${candidate.period.end.getFullYear()}`;
+    ws.write(
+      `События за период от ${formattedDateStart} до ${formattedDateEnd},\n`,
+    );
+    ws.write(`Комменатрии,${candidate.data.period.comments}\n`);
+    ws.write(`Добавили в избранное,${candidate.data.period.favorite}\n`);
+    ws.write(`Убрали из избранного,${candidate.data.period.unfavorite}\n`);
+    ws.write(`Решили участвовать,${candidate.data.period.attend}\n`);
+    ws.write(`Отказались от участия,${candidate.data.period.unattend}\n`);
+
+    ws.end();
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="data.csv"');
+
+    res.sendFile('./output.csv', { root: process.cwd() });
   }
 }
