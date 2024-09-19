@@ -11,7 +11,6 @@ export class EmailNotifierService {
     private mailerService: MailerService,
   ) {}
 
-  //{ "eventId": "swsj1iwol5vfxuuy" }
   async sendAllUsersByEventId(eventId: string) {
     const { participants, name } = await this.prisma.events.findFirst({
       where: { id: eventId },

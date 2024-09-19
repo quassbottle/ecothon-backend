@@ -60,6 +60,7 @@ export class EventsNotifierSchedule {
 
     for (const event of events) {
       this.kafka.emit('notifications.email.all', { eventId: event.id });
+      this.kafka.emit('notifications.telegram.all', { eventId: event.id });
     }
   }
 }

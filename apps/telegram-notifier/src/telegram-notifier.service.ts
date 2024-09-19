@@ -17,7 +17,10 @@ export class TelegramNotifierService {
     const event = await this.prisma.events.findFirst({
       where: { id: eventId },
       select: {
-        participants: { select: { telegram: true } },
+        participants: {
+          where: { telegram: { isNot: null } },
+          select: { telegram: true },
+        },
         id: true,
         name: true,
       },
