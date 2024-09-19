@@ -39,7 +39,10 @@ export class TelegramNotifierService {
           sent++;
         }
       } catch (e) {
-        this.logger.error(`Error sending notification to user ${user.id}:`, e);
+        this.logger.error(
+          `Error sending notification to user ${user.telegram.userId}:`,
+          e,
+        );
       }
     }
 
