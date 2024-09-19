@@ -162,10 +162,10 @@ export class EventsController {
     @Query('tags') tags?: string[],
     @Query('start') start?: Date,
     @Query('end') end?: Date,
-    @Query('radius', new ParseFloatPipe({ optional: false })) radius?: number,
-    @Query('latitude', new ParseFloatPipe({ optional: false }))
+    @Query('radius', new ParseFloatPipe({ optional: true })) radius?: number,
+    @Query('latitude', new ParseFloatPipe({ optional: true }))
     latitude?: number,
-    @Query('longitude', new ParseFloatPipe({ optional: false }))
+    @Query('longitude', new ParseFloatPipe({ optional: true }))
     longitude?: number,
     @Query('type', new ParseEnumPipe(EventsFilter, { optional: true }))
     type?: EventsFilter,
