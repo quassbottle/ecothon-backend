@@ -33,8 +33,5 @@ export class Document {
   user?: Users;
 
   @ApiProperty()
-  file: File;
-
-  @ApiProperty()
   fileId: string;
 }
