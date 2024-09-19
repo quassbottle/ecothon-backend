@@ -12,6 +12,7 @@ import { TagsService } from '../tags/tags.service';
 import { EventsFilter } from './events.controller';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { AnalyticsModel } from '../analytics/models/analytics.model';
+import { DistanceService } from './coordinates';
 
 @Injectable()
 export class EventsService {
@@ -20,6 +21,7 @@ export class EventsService {
     private readonly userService: UserService,
     private readonly tagsService: TagsService,
     private readonly analyticsService: AnalyticsService,
+    private readonly distanceService: DistanceService,
     @Inject('EVENT_ID') private readonly eventId: () => string,
   ) {}
 
@@ -177,8 +179,13 @@ export class EventsService {
     end?: Date;
     tags?: string[];
     type?: EventsFilter;
+    latitude: number;
+    longitude: number;
+    radius: number;
   }): Promise<EventModel[]> {
     const { start, end } = params;
+    const { latitude, longitude } = params;
+    const { radius } = params;
 
     if ((!start && end) || (start && !end)) {
       throw new BadRequestException('Either start or end must be provided');
@@ -250,7 +257,7 @@ export class EventsService {
           }
         : undefined;
 
-    const events = await this.prisma.events.findMany({
+    let events = await this.prisma.events.findMany({
       where: {
         ...whereDateStartEnd,
         ...whereParticipants,
@@ -282,6 +289,19 @@ export class EventsService {
       },
       orderBy,
     });
+
+    events = events.filter((i) => {
+      const mark = this.distanceService.getDistanceToMark(
+        i.latitude,
+        i.longitude,
+        latitude,
+        longitude,
+      );
+      console.log(mark);
+      return mark <= radius;
+    });
+
+    console.log(events);
 
     return events.map(({ _count, participants, ...db }) => {
       return {
