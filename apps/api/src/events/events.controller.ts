@@ -9,10 +9,11 @@ import {
   Patch,
   Post,
   Query,
-  Req, Res,
+  Req,
+  Res,
   UseGuards,
-  ValidationPipe
-} from "@nestjs/common";
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -40,7 +41,7 @@ import {
 import { Roles } from '../auth/role.decorator';
 import { AnalyticsModel } from '../analytics/models/analytics.model';
 import { EventsService } from './events.service';
-import * as fs from "fs";
+import * as fs from 'fs';
 import * as moment from 'moment';
 
 export enum EventsFilter {
@@ -331,7 +332,7 @@ export class EventsController {
   @UseGuards(AuthGuard)
   @Roles('host', 'admin')
   @Get(':id/analytics/download')
-  async analyticsDownload (
+  async analyticsDownload(
     @Param('id') id: string,
     @Res() res: any,
     @Req() req: RequestWithJwt,
@@ -386,6 +387,6 @@ export class EventsController {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="data.csv"');
 
-    res.sendFile('./output.csv', { root: process.cwd() });
+    res.sendFile(ws);
   }
 }

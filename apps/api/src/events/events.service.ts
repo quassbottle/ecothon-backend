@@ -42,7 +42,7 @@ export class EventsService {
       },
     });
 
-    //this.analyticsService.emit({ event: 'unfavorite', userId, eventId });
+    this.analyticsService.emit({ event: 'unfavorite', userId, eventId });
 
     return this.findById({ id: eventId });
   }
@@ -63,6 +63,8 @@ export class EventsService {
         },
       },
     });
+
+    this.analyticsService.emit({ event: 'favorite', userId, eventId });
 
     return this.findById({ id: eventId });
   }
@@ -90,6 +92,8 @@ export class EventsService {
       },
     });
 
+    this.analyticsService.emit({ event: 'unattend', userId, eventId });
+
     return this.findById({ id: eventId });
   }
 
@@ -115,6 +119,8 @@ export class EventsService {
         },
       },
     });
+
+    this.analyticsService.emit({ event: 'attend', userId, eventId });
 
     return this.findById({ id: eventId });
   }
@@ -164,9 +170,13 @@ export class EventsService {
       },
     });
 
+    const email = db.author.email;
+
+    delete db.author.email;
+
     return {
       ...db,
-      hostEmail: db.author.email,
+      hostEmail: email,
       tags: db.tags.map((tag) => tag.name),
       participants: _count.participants,
     };
@@ -292,10 +302,10 @@ export class EventsService {
       });
     }
 
-    return events.map(({ _count, participants, ...db }) => {
+    return events.map(({ _count, participants, author, ...db }) => {
       return {
         ...db,
-        hostEmail: db.author.email,
+        hostEmail: author.email,
         tags: db.tags.map((tag) => tag.name),
         participants: _count.participants,
         attending: !!participants ? participants.length > 0 : false,
@@ -350,10 +360,10 @@ export class EventsService {
       orderBy,
     });
 
-    return events.map(({ _count, ...db }) => {
+    return events.map(({ _count, author, ...db }) => {
       return {
         ...db,
-        hostEmail: db.author.email,
+        hostEmail: author.email,
         participants: _count.participants,
       };
     });
