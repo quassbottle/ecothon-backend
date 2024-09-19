@@ -44,7 +44,10 @@ export class DocumentOrganizationService {
 
     return this.prisma.document.findMany({
       take: limit ?? 10,
-      skip: offset ?? 0
+      skip: offset ?? 0,
+      where: {
+        documentType: 'unverified',
+      },
     });
   }
 
